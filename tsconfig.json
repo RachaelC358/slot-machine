@@ -2,11 +2,14 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "outDir": "dist",
-    "module": "ESNext",
+    "module": "Node16",
     "target": "ESNext",
     "jsx": "react-jsx",
     "strict": true,
-    "moduleResolution": "node"
+    "moduleResolution": "Node16",
+    "esModuleInterop": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
   },
   "include": ["src"],
   "exclude": ["node_modules"]
