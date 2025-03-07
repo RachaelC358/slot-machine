@@ -38,3 +38,41 @@ resource "aws_ecs_task_definition" "slot_machine_task" {     #tell ecs to run th
     }
   ])
 }
+
+
+
+# ec2 instance resource
+resource "aws_instance" "ecs_instance" {
+  ami                    = "ami-0c55b159cbfafe1f0"  # Replace with the latest ECS-optimized AMI for your region
+  instance_type          = "t2.micro"               # You can choose the instance type based on your needs
+  key_name               = "your-key-pair"          # Replace with your SSH key name
+  subnet_id              = "subnet-xxxxxxxx"         # Replace with your subnet ID
+  security_groups        = ["ecs-sg"]                # Ensure security group allows inbound traffic on the required ports (e.g., 80)
+
+  # IAM role allowing EC2 to run ECS tasks
+  iam_instance_profile   = "ecsInstanceRole"
+
+  tags = {
+    Name = "ECS-Instance"
+  }
+}
+
+resource "aws_security_group" "ecs_sg" {
+  name        = "ecs-sg"
+  description = "Allow inbound HTTP traffic to ECS container"
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
