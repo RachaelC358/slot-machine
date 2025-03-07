@@ -30,3 +30,9 @@ node_modules
 # https://vitejs.dev/guide/env-and-mode.html#env-files
 *.local
 
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+
