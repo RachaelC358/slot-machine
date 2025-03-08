@@ -11,20 +11,20 @@ provider "aws" {
   region = "us-east-1" 
 }
 
-resource "aws_ecs_cluster" "slot_machine_cluster" {     #resource type and name in terraform
-  name = "slot-machine-cluster"                         #actual name of the cluster in aws 
+resource "aws_ecs_cluster" "slot_machine_cluster" {
+  name = "slot-machine-cluster"
 }
 
-resource "aws_ecs_task_definition" "slot_machine_task" {     #tell ecs to run the docker container
+resource "aws_ecs_task_definition" "slot_machine_task" {
   family                   = "slot-machine-task"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE"]
-  cpu                      = "256"  
-  memory                   = "512"  
+  network_mode             = "bridge"
+  requires_compatibilities = ["EC2"]
+  cpu                      = "256"
+  memory                   = "512"
   execution_role_arn       = "arn:aws:iam::307946634710:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
   task_role_arn            = "arn:aws:iam::307946634710:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
 
-  container_definitions = jsonencode([
+  container_definitions = jsonencode([ 
     {
       name      = "slot-machine-container"
       image     = "307946634710.dkr.ecr.us-east-1.amazonaws.com/slot-machine:latest"
@@ -39,22 +39,25 @@ resource "aws_ecs_task_definition" "slot_machine_task" {     #tell ecs to run th
   ])
 }
 
+data "aws_ssm_parameter" "ecs_ami" {
+  name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
+}
 
+# EC2 instance resource
+resource "aws_instance" "ecs_instance_slots" {
+  ami                    = data.aws_ssm_parameter.ecs_ami.value
+  instance_type          = "t2.micro"
+  key_name               = "rachael-key-pair"
+  subnet_id              = "subnet-0c818649d0f34da8c"  # Make sure this is correct
+  security_groups        = [aws_security_group.ecs_sg.id]  # Use security group ID here
 
-# ec2 instance resource
-resource "aws_instance" "ecs_instance" {
-  ami                    = "ami-0c55b159cbfafe1f0"  # Replace with the latest ECS-optimized AMI for your region
-  instance_type          = "t2.micro"               # You can choose the instance type based on your needs
-  key_name               = "your-key-pair"          # Replace with your SSH key name
-  subnet_id              = "subnet-xxxxxxxx"         # Replace with your subnet ID
-  security_groups        = ["ecs-sg"]                # Ensure security group allows inbound traffic on the required ports (e.g., 80)
-
-  # IAM role allowing EC2 to run ECS tasks
-  iam_instance_profile   = "ecsInstanceRole"
+  iam_instance_profile   = aws_iam_instance_profile.ecs_instance_profile.name
 
   tags = {
     Name = "ECS-Instance"
   }
+
+  depends_on = [aws_security_group.ecs_sg]
 }
 
 resource "aws_security_group" "ecs_sg" {
@@ -76,3 +79,33 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
+# Create IAM Role for EC2 instances to use ECS
+resource "aws_iam_role" "ecs_instance_role" {
+  name = "ecsInstanceRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action    = "sts:AssumeRole"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+        Effect    = "Allow"
+        Sid       = ""
+      },
+    ]
+  })
+}
+
+# Create IAM Instance Profile for EC2 instances
+resource "aws_iam_instance_profile" "ecs_instance_profile" {
+  name = "ecsInstanceProfile"
+  role = aws_iam_role.ecs_instance_role.name
+}
+
+# Attach policies to the ECS instance role
+resource "aws_iam_role_policy_attachment" "ecs_instance_role_policy" {
+  role       = aws_iam_role.ecs_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"  # Correct ARN
+}
