@@ -1,0 +1,30 @@
+name: Deploy to AWS ECS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to AWS ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and tag Docker image
+        run: |
+          docker build -t slot-machine .
+          docker tag slot-machine:latest 307946634710.dkr.ecr.us-east-1.amazonaws.com/slot-machine:latest
+
+      - name: Push Docker image to ECR
+        run: |
+          docker push 307946634710.dkr.ecr.us-east-1.amazonaws.com/slot-machine:latest
+
+      - name: Update ECS Task Definition
+        run: |
+          aws ecs update-service --cluster slot-machine-cluster --service slot-machine-service --force-new-deployment
