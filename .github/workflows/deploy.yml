@@ -1,4 +1,6 @@
 name: Deploy to AWS ECS
+env:
+  AWS_REGION: us-east-1  
 
 on:
   push:
