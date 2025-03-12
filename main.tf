@@ -117,12 +117,7 @@ resource "aws_ecs_service" "slot_machine_service" {
   task_definition = aws_ecs_task_definition.slot_machine_task.arn
   desired_count   = 1
   launch_type     = "EC2"
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.slot_machine_tg.arn
-    container_name   = "slot-machine-container"
-    container_port   = 80
-  }
-
-  depends_on = [aws_lb_listener.http]
+  
+  depends_on = [aws_ecs_task_definition.slot_machine_task]
 }
+
