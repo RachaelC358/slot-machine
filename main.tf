@@ -121,3 +121,13 @@ resource "aws_ecs_service" "slot_machine_service" {
   depends_on = [aws_ecs_task_definition.slot_machine_task]
 }
 
+resource "aws_eip" "ecs_instance_eip" {
+  instance = aws_instance.ecs_instance_slots.id
+  domain   = "vpc"
+}
+
+output "elastic_ip" {
+  description = "The public Elastic IP of the ECS instance"
+  value       = aws_eip.ecs_instance_eip.public_ip
+}
+
