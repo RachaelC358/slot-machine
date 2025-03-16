@@ -1,5 +1,11 @@
-//import { useState } from "react";
-//import { motion } from "framer-motion";
+import React from "react";
 
-export default function BonusWheel() {
-}
+const BonusWheel = () => {
+  return (
+    <div>
+      {/* BonusWheel component content */}
+    </div>
+  );
+};
+
+export default BonusWheel;
