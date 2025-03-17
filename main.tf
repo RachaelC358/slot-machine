@@ -11,6 +11,7 @@ provider "aws" {
   region = "us-east-1" 
 }
 
+
 resource "aws_ecs_cluster" "slot_machine_cluster" {
   name = "slot-machine-cluster"
 }
@@ -43,19 +44,24 @@ data "aws_ssm_parameter" "ecs_ami" {
   name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
 }
 
-# EC2 instance resource
 resource "aws_instance" "ecs_instance_slots" {
   ami                    = data.aws_ssm_parameter.ecs_ami.value
   instance_type          = "t2.micro"
   key_name               = "rachael-key-pair"
-  subnet_id              = "subnet-0c818649d0f34da8c"  # Make sure this is correct
-  security_groups        = [aws_security_group.ecs_sg.id]  # Use security group ID here
+  subnet_id              = "subnet-0c818649d0f34da8c"  # Ensure this is the correct subnet
+  security_groups        = [aws_security_group.ecs_sg.id]
 
   iam_instance_profile   = aws_iam_instance_profile.ecs_instance_profile.name
 
   tags = {
     Name = "ECS-Instance"
   }
+
+  user_data = <<-EOF
+              #!/bin/bash
+              echo "ECS_CLUSTER=slot-machine-cluster" > /etc/ecs/ecs.config
+              sudo systemctl restart ecs
+              EOF
 
   depends_on = [aws_security_group.ecs_sg]
 }
@@ -71,6 +77,13 @@ resource "aws_security_group" "ecs_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -79,7 +92,6 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
-# Create IAM Role for EC2 instances to use ECS
 resource "aws_iam_role" "ecs_instance_role" {
   name = "ecsInstanceRole"
 
@@ -98,19 +110,16 @@ resource "aws_iam_role" "ecs_instance_role" {
   })
 }
 
-# Create IAM Instance Profile for EC2 instances
 resource "aws_iam_instance_profile" "ecs_instance_profile" {
   name = "ecsInstanceProfile"
   role = aws_iam_role.ecs_instance_role.name
 }
 
-# Attach policies to the ECS instance role
 resource "aws_iam_role_policy_attachment" "ecs_instance_role_policy" {
   role       = aws_iam_role.ecs_instance_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"  # Correct ARN
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
-#update ecs with built docker image on git push
 resource "aws_ecs_service" "slot_machine_service" {
   name            = "slot-machine-service"
   cluster         = aws_ecs_cluster.slot_machine_cluster.id
@@ -130,4 +139,3 @@ output "elastic_ip" {
   description = "The public Elastic IP of the ECS instance"
   value       = aws_eip.ecs_instance_eip.public_ip
 }
-
