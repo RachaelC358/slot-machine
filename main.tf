@@ -11,7 +11,6 @@ provider "aws" {
   region = "us-east-1" 
 }
 
-
 resource "aws_ecs_cluster" "slot_machine_cluster" {
   name = "slot-machine-cluster"
 }
@@ -57,8 +56,7 @@ resource "aws_instance" "ecs_instance_slots" {
   user_data = <<-EOF
               #!/bin/bash
               echo "ECS_CLUSTER=slot-machine-cluster" > /etc/ecs/ecs.config
-              yum install -y ecs-init
-              service ecs start
+              start ecs
             EOF
 
   tags = {
@@ -67,8 +65,6 @@ resource "aws_instance" "ecs_instance_slots" {
 
   depends_on = [aws_security_group.ecs_sg]
 }
-
-
 
 resource "aws_security_group" "ecs_sg" {
   name        = "ecs-sg"
