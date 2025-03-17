@@ -21,7 +21,7 @@ resource "aws_ecs_task_definition" "slot_machine_task" {
   requires_compatibilities = ["EC2"]
   cpu                      = "256"
   memory                   = "512"
-  execution_role_arn       = "arn:aws:iam::307946634710:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
+  execution_role_arn       = "arn:aws:iam::307946634710:role/execution"
   task_role_arn            = "arn:aws:iam::307946634710:role/todd"
 
   container_definitions = jsonencode([ 
