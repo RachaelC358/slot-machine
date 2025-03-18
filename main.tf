@@ -20,7 +20,7 @@ resource "aws_ecs_task_definition" "slot_machine_task" {
   network_mode             = "bridge"
   requires_compatibilities = ["EC2"]
   cpu                      = "256"
-  memory                   = "512"
+  memory                   = "256"
   execution_role_arn       = "arn:aws:iam::307946634710:role/execution"
   task_role_arn            = "arn:aws:iam::307946634710:role/todd"
 
