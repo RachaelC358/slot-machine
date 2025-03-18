@@ -24,19 +24,20 @@ resource "aws_ecs_task_definition" "slot_machine_task" {
   execution_role_arn       = "arn:aws:iam::307946634710:role/execution"
   task_role_arn            = "arn:aws:iam::307946634710:role/todd"
 
-  container_definitions = jsonencode([ 
-    {
-      name      = "slot-machine-container"
-      image     = "307946634710.dkr.ecr.us-east-1.amazonaws.com/slot-machine:latest"
-      essential = true
-      portMappings = [
-        {
-          containerPort = 80
-          hostPort      = 80
-        }
-      ]
-    }
-  ])
+ container_definitions = jsonencode([ 
+  {
+    name      = "slot-machine-container"
+    image     = "307946634710.dkr.ecr.us-east-1.amazonaws.com/slot-machine:latest"
+    essential = true
+    portMappings = [
+      {
+        containerPort = 80
+        hostPort      = 8080  # Change hostPort to avoid conflict
+      }
+    ]
+  }
+])
+
 }
 
 data "aws_ssm_parameter" "ecs_ami" {
@@ -46,17 +47,16 @@ data "aws_ssm_parameter" "ecs_ami" {
 # EC2 instance resource
 resource "aws_instance" "ecs_instance_slots" {
   ami                    = data.aws_ssm_parameter.ecs_ami.value
-  instance_type          = "t2.micro"
+  instance_type          = "t2.medium"  # Increase instance size here
   key_name               = "rachael-key-pair"
   subnet_id              = "subnet-0c818649d0f34da8c"
   security_groups        = [aws_security_group.ecs_sg.id]
-
   iam_instance_profile   = aws_iam_instance_profile.ecs_instance_profile.name
 
   user_data = <<-EOF
               #!/bin/bash
               echo "ECS_CLUSTER=slot-machine-cluster" > /etc/ecs/ecs.config
-              start ecs
+              systemctl enable --now ecs
             EOF
 
   tags = {
@@ -65,6 +65,7 @@ resource "aws_instance" "ecs_instance_slots" {
 
   depends_on = [aws_security_group.ecs_sg]
 }
+
 
 resource "aws_security_group" "ecs_sg" {
   name        = "ecs-sg"
@@ -83,6 +84,13 @@ resource "aws_security_group" "ecs_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  ingress {
+  from_port   = 443
+  to_port     = 443
+  protocol    = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+}
 
   egress {
     from_port   = 0
