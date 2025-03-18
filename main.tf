@@ -11,6 +11,11 @@ provider "aws" {
   region = "us-east-1"
 }
 
+# Data source for retrieving the ECS AMI from AWS SSM Parameter Store
+data "aws_ssm_parameter" "ecs_ami" {
+  name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
+}
+
 # ECS Cluster
 resource "aws_ecs_cluster" "slot_machine_cluster" {
   name = "slot-machine-cluster"
