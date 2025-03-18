@@ -35,15 +35,15 @@ jobs:
         run: |
           docker push 307946634710.dkr.ecr.us-east-1.amazonaws.com/slot-machine:latest
 
-          - name: Register new ECS task definition
-          run: |
-            aws ecs register-task-definition \
-              --family slot-machine-task \
-              --container-definitions "$(cat container_definitions.json)" \
-              --cpu 256 \
-              --memory 256 \
-              --network-mode bridge \
-              --requires-compatibilities EC2    
+      - name: Register new ECS task definition
+        run: |
+          aws ecs register-task-definition \
+            --family slot-machine-task \
+            --container-definitions "$(cat container_definitions.json)" \
+            --cpu 256 \
+            --memory 256 \
+            --network-mode bridge \
+            --requires-compatibilities EC2    
 
       - name: Update ECS Task Definition
         run: |
