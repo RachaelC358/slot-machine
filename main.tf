@@ -8,13 +8,15 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1" 
+  region = "us-east-1"
 }
 
+# ECS Cluster
 resource "aws_ecs_cluster" "slot_machine_cluster" {
   name = "slot-machine-cluster"
 }
 
+# ECS Task Definition
 resource "aws_ecs_task_definition" "slot_machine_task" {
   family                   = "slot-machine-task"
   network_mode             = "bridge"
@@ -24,30 +26,25 @@ resource "aws_ecs_task_definition" "slot_machine_task" {
   execution_role_arn       = "arn:aws:iam::307946634710:role/execution"
   task_role_arn            = "arn:aws:iam::307946634710:role/todd"
 
- container_definitions = jsonencode([ 
-  {
-    name      = "slot-machine-container"
-    image     = "307946634710.dkr.ecr.us-east-1.amazonaws.com/slot-machine:latest"
-    essential = true
-    portMappings = [
-      {
-        containerPort = 80
-        hostPort      = 8080  # Change hostPort to avoid conflict
-      }
-    ]
-  }
-])
-
-}
-
-data "aws_ssm_parameter" "ecs_ami" {
-  name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
+  container_definitions = jsonencode([ 
+    {
+      name      = "slot-machine-container"
+      image     = "307946634710.dkr.ecr.us-east-1.amazonaws.com/slot-machine:latest"
+      essential = true
+      portMappings = [
+        {
+          containerPort = 80
+          hostPort      = 8080  # Change hostPort to avoid conflict
+        }
+      ]
+    }
+  ])
 }
 
 # EC2 instance resource
 resource "aws_instance" "ecs_instance_slots" {
   ami                    = data.aws_ssm_parameter.ecs_ami.value
-  instance_type          = "t2.medium"  # Increase instance size here
+  instance_type          = "t2.medium"
   key_name               = "rachael-key-pair"
   subnet_id              = "subnet-0c818649d0f34da8c"
   security_groups        = [aws_security_group.ecs_sg.id]
@@ -66,7 +63,7 @@ resource "aws_instance" "ecs_instance_slots" {
   depends_on = [aws_security_group.ecs_sg]
 }
 
-
+# Security Group for ECS Instance
 resource "aws_security_group" "ecs_sg" {
   name        = "ecs-sg"
   description = "Allow inbound HTTP traffic to ECS container"
@@ -86,11 +83,11 @@ resource "aws_security_group" "ecs_sg" {
   }
 
   ingress {
-  from_port   = 443
-  to_port     = 443
-  protocol    = "tcp"
-  cidr_blocks = ["0.0.0.0/0"]
-}
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   egress {
     from_port   = 0
@@ -100,7 +97,7 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
-# Create IAM Role for EC2 instances to use ECS
+# IAM Role for ECS Instance
 resource "aws_iam_role" "ecs_instance_role" {
   name = "ecsInstanceRole"
 
@@ -119,19 +116,19 @@ resource "aws_iam_role" "ecs_instance_role" {
   })
 }
 
-# Create IAM Instance Profile for EC2 instances
+# IAM Instance Profile for EC2 Instances
 resource "aws_iam_instance_profile" "ecs_instance_profile" {
   name = "ecsInstanceProfile"
   role = aws_iam_role.ecs_instance_role.name
 }
 
-# Attach policies to the ECS instance role
+# Attach Policies to ECS Instance Role
 resource "aws_iam_role_policy_attachment" "ecs_instance_role_policy" {
   role       = aws_iam_role.ecs_instance_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
-#update ecs with built docker image on git push
+# ECS Service to run task
 resource "aws_ecs_service" "slot_machine_service" {
   name            = "slot-machine-service"
   cluster         = aws_ecs_cluster.slot_machine_cluster.id
@@ -142,6 +139,7 @@ resource "aws_ecs_service" "slot_machine_service" {
   depends_on = [aws_ecs_task_definition.slot_machine_task]
 }
 
+# Elastic IP for the ECS Instance
 resource "aws_eip" "ecs_instance_eip" {
   instance = aws_instance.ecs_instance_slots.id
   domain   = "vpc"
