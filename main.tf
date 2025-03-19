@@ -42,14 +42,6 @@ resource "aws_ecs_task_definition" "slot_machine_task" {
           hostPort      = 8080  # Change hostPort to avoid conflict
         }
       ]
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          "awslogs-group"         = "/ecs/slot-machine"
-          "awslogs-region"        = "us-east-1"
-          "awslogs-stream-prefix" = "ecs"
-        }
-      }
     }
   ])
 }
