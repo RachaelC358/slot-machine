@@ -1,52 +1,27 @@
-name: Deploy to AWS ECS
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    environment: prod
-    steps:
-      - name: Debug
-        run: env | grep AWS
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ secrets.AWS_REGION }}
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Login to AWS ECR
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build and tag Docker image
-        run: |
-          docker build -t slot-machine .
-          docker tag slot-machine:latest 307946634710.dkr.ecr.us-east-1.amazonaws.com/slot-machine:latest
-
-      - name: Push Docker image to ECR
-        run: |
-          docker push 307946634710.dkr.ecr.us-east-1.amazonaws.com/slot-machine:latest
-
-      - name: Register ECS task definition revision
-        id: register_task_definition
-        run: |
-          # Update the ECS task definition with the new image tag
-          sed -i 's|"image": ".*"|"image": "307946634710.dkr.ecr.us-east-1.amazonaws.com/slot-machine:latest"|' ecs-task-definition.json
-          # Register the ECS task definition and capture the revision number
-          output=$(aws ecs register-task-definition --cli-input-json file://ecs-task-definition.json)
-          echo "Task definition registered with revision number: $(echo $output | jq -r '.taskDefinition.revision')"
-          echo "::set-output name=revision::$(echo $output | jq -r '.taskDefinition.revision')"
-
-      - name: Update ECS service to use new task definition
-        run: |
-          # Use the revision number from the previous step
-          revision_number=${{ steps.register_task_definition.outputs.revision }}
-          aws ecs update-service --cluster slot-machine-cluster --service slot-machine-service --task-definition slot-machine-task:$revision_number
+{
+    "family": "slot-machine-task",
+    "containerDefinitions": [
+      {
+        "name": "slot-machine-container",
+        "image": "307946634710.dkr.ecr.us-east-1.amazonaws.com/slot-machine:latest",
+        "essential": true,
+        "portMappings": [
+          {
+            "containerPort": 80,
+            "hostPort": 8080
+          }
+        ],
+        "memory": 512,
+        "cpu": 256,
+        "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "/ecs/slot-machine",
+            "awslogs-region": "us-east-1",
+            "awslogs-stream-prefix": "ecs"
+          }
+        }
+      }
+    ]
+  }
+  
