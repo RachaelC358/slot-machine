@@ -31,7 +31,7 @@ resource "aws_ecs_task_definition" "slot_machine_task" {
   execution_role_arn       = "arn:aws:iam::307946634710:role/execution"
   task_role_arn            = "arn:aws:iam::307946634710:role/todd"
 
-  container_definitions = jsonencode([ 
+  container_definitions = jsonencode([
     {
       name      = "slot-machine-container"
       image     = "307946634710.dkr.ecr.us-east-1.amazonaws.com/slot-machine:latest"
@@ -42,9 +42,23 @@ resource "aws_ecs_task_definition" "slot_machine_task" {
           hostPort      = 8080  # Change hostPort to avoid conflict
         }
       ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = "/ecs/slot-machine"
+          "awslogs-region"        = "us-east-1"
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
     }
   ])
 }
+
+resource "aws_iam_role_policy_attachment" "ecs_task_cloudwatch_policy" {
+  role       = aws_iam_role.ecs_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+}
+
 
 # EC2 instance resource
 resource "aws_instance" "ecs_instance_slots" {
@@ -55,11 +69,13 @@ resource "aws_instance" "ecs_instance_slots" {
   security_groups        = [aws_security_group.ecs_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.ecs_instance_profile.name
 
-  user_data = <<-EOF
+user_data = <<-EOF
               #!/bin/bash
               echo "ECS_CLUSTER=slot-machine-cluster" > /etc/ecs/ecs.config
               systemctl enable --now ecs
+              echo "ECS agent started"
             EOF
+
 
   tags = {
     Name = "ECS-Instance"
@@ -101,6 +117,15 @@ resource "aws_security_group" "ecs_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+
+
+# Adding this managed policy for ECS agent access to the ECS API
+resource "aws_iam_role_policy_attachment" "ecs_agent_access" {
+  role       = aws_iam_role.ecs_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole"
+}
+
 
 # IAM Role for ECS Instance
 resource "aws_iam_role" "ecs_instance_role" {
