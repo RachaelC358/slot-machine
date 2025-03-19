@@ -35,4 +35,13 @@ jobs:
         run: |
           docker push 307946634710.dkr.ecr.us-east-1.amazonaws.com/slot-machine:latest
 
-    
+      - name: Register ECS task definition revision
+        run: |
+          # Update the ECS task definition with the new image tag
+          sed -i 's|"image": ".*"|"image": "307946634710.dkr.ecr.us-east-1.amazonaws.com/slot-machine:latest"|' ecs-task-definition.json
+          aws ecs register-task-definition --cli-input-json file://ecs-task-definition.json
+
+      - name: Update ECS service to use new task definition
+        run: |
+          # Update ECS service with the latest task definition
+          aws ecs update-service --cluster slot-machine-cluster --service slot-machine-service --task-definition slot-machine-task:latest

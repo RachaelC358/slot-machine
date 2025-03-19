@@ -1,0 +1,17 @@
+{
+    "family": "slot-machine-task",
+    "containerDefinitions": [
+      {
+        "name": "slot-machine-container",
+        "image": "307946634710.dkr.ecr.us-east-1.amazonaws.com/slot-machine:latest",
+        "essential": true,
+        "portMappings": [
+          {
+            "containerPort": 80,
+            "hostPort": 8080
+          }
+        ]
+      }
+    ]
+  }
+  
