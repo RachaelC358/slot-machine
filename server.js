@@ -1,12 +1,12 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
 
 const hostname = '127.0.0.1';
 const port = process.env.PORT || 8080;
 
 const server = http.createServer((req, res) => {
-    let filePath = path.join(__dirname, 'build', req.url === '/' ? 'index.html' : req.url);
+    let filePath = path.join(process.cwd(), 'build', req.url === '/' ? 'index.html' : req.url);
     const extname = path.extname(filePath);
     const contentType = getContentType(extname);
 
