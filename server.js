@@ -6,7 +6,7 @@ const hostname = '0.0.0.0';
 const port = process.env.PORT || 8080;
 
 const server = http.createServer((req, res) => {
-    let filePath = path.join(process.cwd(), 'build', req.url === '/' ? 'index.html' : req.url);
+    let filePath = path.join(process.cwd(), 'dist', req.url === '/' ? 'index.html' : req.url);
     const extname = path.extname(filePath);
     const contentType = getContentType(extname);
 
