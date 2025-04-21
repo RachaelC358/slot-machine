@@ -1,10 +1,10 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
 
 const db = new DynamoDB.DocumentClient();
 const USERS_TABLE = process.env.USERS_TABLE || 'users';
 
-export const handler: APIGatewayProxyHandler = async (event) => {
+export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const cookie = event.headers.cookie || '';
   const match = cookie.match(/user_id=([^;]+)/);
   const userId = match?.[1];
