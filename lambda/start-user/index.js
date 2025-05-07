@@ -39,7 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.handler = void 0;
 var aws_sdk_1 = require("aws-sdk");
 var db = new aws_sdk_1.DynamoDB.DocumentClient();
-var USERS_TABLE = process.env.USERS_TABLE || 'users';
+var USERS_TABLE = process.env.USERS_TABLE || 'GameUsers';
 var handler = function (event) { return __awaiter(void 0, void 0, void 0, function () {
     var cookie, match, userId, user;
     return __generator(this, function (_a) {
