@@ -71,6 +71,10 @@ var handler = function (event) { return __awaiter(void 0, void 0, void 0, functi
                 _a.label = 3;
             case 3: return [2 /*return*/, {
                     statusCode: 200,
+                    headers: {
+                        'Access-Control-Allow-Origin': 'http://slot-machine-env-1.eba-qapgz6xe.us-east-1.elasticbeanstalk.com',
+                        'Access-Control-Allow-Credentials': true,
+                      },
                     body: JSON.stringify({ message: 'User registered or already exists' }),
                 }];
         }

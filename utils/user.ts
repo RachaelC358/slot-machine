@@ -17,8 +17,11 @@ export function getOrCreateUserId(): string {
 
 function triggerUserRegistration() {
   fetch("https://zfr5ajjmog.execute-api.us-east-1.amazonaws.com/prod", {
-    method: "POST",
-    credentials: "include", // Sends the cookie!
+    method: 'POST', // or 'GET'
+    credentials: 'include', // send cookies
+    headers: {
+      'Content-Type': 'application/json',
+    },
   })
     .then((res) => res.json())
     .then((data) => console.log("User registration:", data))
