@@ -1,19 +1,17 @@
 import { v4 as uuidv4 } from 'uuid';
 
 export function getOrCreateUserId(): string {
-  const match = document.cookie.match(/(^| )user_id=([^;]+)/);
-  if (match) {
-    // User already has a cookie; still trigger Lambda to ensure user is in DB
-    triggerUserRegistration();
-    return match[2];
-  }
-
   const newId = uuidv4();
   document.cookie = `user_id=${newId}; path=/; max-age=${60 * 60 * 24 * 365}`;
 
-  triggerUserRegistration(); // Call API to register the new user
+  // Wait until the cookie is set before triggering registration
+  setTimeout(() => {
+    triggerUserRegistration();
+  }, 0);
+
   return newId;
 }
+
 
 function triggerUserRegistration() {
   fetch("https://zfr5ajjmog.execute-api.us-east-1.amazonaws.com/prod", {
