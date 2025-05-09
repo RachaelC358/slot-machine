@@ -1,24 +1,24 @@
 import { v4 as uuidv4 } from 'uuid';
 
 export function getOrCreateUserId(): string {
-  const existingCookie = document.cookie
+  let userId = document.cookie
     .split('; ')
-    .find(row => row.startsWith('user_id='));
+    .find(row => row.startsWith('user_id='))
+    ?.split('=')[1];
 
-  if (existingCookie) {
-    return existingCookie.split('=')[1];
+  if (!userId) {
+    userId = uuidv4();
+    document.cookie = `user_id=${userId}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=None; Secure`;
   }
 
-  const newId = uuidv4();
-  document.cookie = `user_id=${newId}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=None; Secure`;
-
-  // Wait until the cookie is set before triggering registration
+  // Always trigger registration
   setTimeout(() => {
     triggerUserRegistration();
   }, 0);
 
-  return newId;
+  return userId;
 }
+
 
 
 function triggerUserRegistration() {
