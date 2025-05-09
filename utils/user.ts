@@ -14,7 +14,7 @@ export function getOrCreateUserId(): string {
 
 
 function triggerUserRegistration() {
-  fetch("https://zfr5ajjmog.execute-api.us-east-1.amazonaws.com/prod", {
+  fetch("https://zfr5ajjmog.execute-api.us-east-1.amazonaws.com", {
     method: 'POST', // or 'GET'
     credentials: 'include', // send cookies
     headers: {
