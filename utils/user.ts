@@ -14,9 +14,9 @@ export function getOrCreateUserId(): string {
 
 
 function triggerUserRegistration() {
-  fetch("https://zfr5ajjmog.execute-api.us-east-1.amazonaws.com", {
-    method: 'POST', // or 'GET'
-    credentials: 'include', // send cookies
+  fetch("https://zfr5ajjmog.execute-api.us-east-1.amazonaws.com/start-user", {
+    method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -25,3 +25,4 @@ function triggerUserRegistration() {
     .then((data) => console.log("User registration:", data))
     .catch((err) => console.error("Failed to register user:", err));
 }
+
