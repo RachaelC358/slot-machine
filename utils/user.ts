@@ -11,26 +11,25 @@ export function getOrCreateUserId(): string {
     document.cookie = `user_id=${userId}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=None; Secure`;
   }
 
-  // Always trigger registration
   setTimeout(() => {
-    triggerUserRegistration();
+    triggerUserRegistration(userId);
   }, 0);
 
   return userId;
 }
 
-
-
-function triggerUserRegistration() {
+function triggerUserRegistration(userId: string) {
   fetch("https://zfr5ajjmog.execute-api.us-east-1.amazonaws.com/start-user", {
     method: 'POST',
-    credentials: 'include',
+    credentials: 'include', // optional here if you drop cookies entirely
     headers: {
       'Content-Type': 'application/json',
+      'x-user-id': userId,
     },
   })
-    .then((res) => res.json())
-    .then((data) => console.log("User registration:", data))
-    .catch((err) => console.error("Failed to register user:", err));
+    .then(res => res.json())
+    .then(data => console.log("User registration:", data))
+    .catch(err => console.error("Failed to register user:", err));
 }
+
 
