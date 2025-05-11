@@ -8,25 +8,19 @@ const data = [
 ];
 
 type WheelProps = {
-  count: number;
-  onSpin: () => void;
   onSpinStart: () => void;
   onSpinEnd: () => void;
 };
 
-const SpinWheel: React.FC<WheelProps> = ({ count, onSpin, onSpinStart, onSpinEnd }) => {
+const SpinWheel: React.FC<WheelProps> = ({ onSpinStart, onSpinEnd }) => {
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
   const spinningRef = useRef(false);
 
-  const SPIN_COST = 20;
-
   const handleSpinClick = () => {
-    if (count < SPIN_COST || spinningRef.current) return;
+    if ( spinningRef.current) return;
 
-    onSpinStart(); // Pause counter
-    onSpin();      // Deduct or process spin
-
+    onSpinStart();
     const newPrizeNumber = Math.floor(Math.random() * data.length);
     setPrizeNumber(newPrizeNumber);
     setMustSpin(true);

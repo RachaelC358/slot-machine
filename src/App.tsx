@@ -1,11 +1,11 @@
 import './App.css';
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { getOrCreateUserId } from '../utils/user';
-import Counter from '../src/components/Counter'; 
+import Counter from '../src/components/Counter';
 import Wheel from '../src/components/Wheel';
 
 const MAX_COUNT = 100_000;
-const START_TIME_KEY = "currencyCounterStartTime";
+const START_TIME_KEY = 'currencyCounterStartTime';
 
 const userId = getOrCreateUserId();
 
@@ -19,51 +19,49 @@ const getStartTime = (): number => {
 
 function App() {
   const [displayCount, setDisplayCount] = useState(0);
-  const [currencyCount, setCurrencyCount] = useState(0);
-  const [paused, setPaused] = useState(false); 
+  const [_, forceRerender] = useState(0); // Used to trigger rerender
+  const pausedRef = useRef(false);
+  const startTimeRef = useRef<number>(getStartTime());
 
   useEffect(() => {
     console.log('User ID:', userId);
 
-    const startTime = getStartTime();
-
     const updateCounter = () => {
-      if (paused) return; 
-
-      const secondsElapsed = Math.floor((Date.now() - startTime) / 3000);
+      if (pausedRef.current) return;
+      const secondsElapsed = Math.floor((Date.now() - startTimeRef.current) / 5000);
       const newCount = Math.min(secondsElapsed, MAX_COUNT);
-      setDisplayCount(newCount);
-      setCurrencyCount(prev => {
-        const updatedCount = Math.max(prev, newCount);
-        return isNaN(updatedCount) ? 0 : updatedCount;
-      });
+      setDisplayCount(prev => Math.max(prev, newCount));
     };
 
     updateCounter();
     const interval = setInterval(updateCounter, 1000);
     return () => clearInterval(interval);
-  }, [paused]); // ✅ Include paused in deps
-
-  const frozenCount = useMemo(() => currencyCount, [currencyCount]);
-  const frozenSetCount = useCallback((val: number) => {
-    setCurrencyCount(val);
   }, []);
 
-  const handleSpinStart = () => setPaused(true);  // ✅ Pause counting
-  const handleSpinEnd = () => setPaused(false);   // ✅ Resume counting
+  const handleSpinStart = useCallback(() => {
+    console.log('Spin started');
+    setDisplayCount(c => Math.max(0, c - 3));
+
+    pausedRef.current = true;
+
+    setTimeout(() => {
+      forceRerender(n => n + 1); // Trigger rerender after 1 second
+    }, 1000); // 1000 ms = 1 second
+  }, []);
+
+  const handleSpinEnd = useCallback(() => {
+    pausedRef.current = false;
+  }, []);
 
   return (
     <div>
       <Counter count={displayCount} />
       <Wheel
-        count={frozenCount}
-        onSpin={() => frozenSetCount(frozenCount - 20)}
         onSpinStart={handleSpinStart}
         onSpinEnd={handleSpinEnd}
       />
     </div>
   );
 }
-
 
 export default App;
