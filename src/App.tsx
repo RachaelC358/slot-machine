@@ -7,6 +7,8 @@ import Wheel from '../src/components/Wheel';
 const MAX_COUNT = 100_000;
 const START_TIME_KEY = "currencyCounterStartTime";
 
+const userId = getOrCreateUserId();
+
 const getStartTime = (): number => {
   const saved = localStorage.getItem(START_TIME_KEY);
   if (saved) return parseInt(saved, 10);
@@ -18,18 +20,17 @@ const getStartTime = (): number => {
 function App() {
   const [displayCount, setDisplayCount] = useState(0);
   const [currencyCount, setCurrencyCount] = useState(0);
-  const [paused, setPaused] = useState(false); // ✅ Paused state
+  const [paused, setPaused] = useState(false); 
 
   useEffect(() => {
-    const id = getOrCreateUserId();
-    console.log('User ID:', id);
+    console.log('User ID:', userId);
 
     const startTime = getStartTime();
 
     const updateCounter = () => {
-      if (paused) return; // ✅ Skip update if paused
+      if (paused) return; 
 
-      const secondsElapsed = Math.floor((Date.now() - startTime) / 1000);
+      const secondsElapsed = Math.floor((Date.now() - startTime) / 3000);
       const newCount = Math.min(secondsElapsed, MAX_COUNT);
       setDisplayCount(newCount);
       setCurrencyCount(prev => {
