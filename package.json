@@ -17,6 +17,7 @@
     "react": "^19.0.0",
     "react-custom-roulette": "^1.4.1",
     "react-dom": "^19.0.0",
+    "react-router-dom": "^7.6.0",
     "serve": "^14.2.4",
     "uuid": "^11.1.0"
   },
