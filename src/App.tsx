@@ -61,11 +61,6 @@ function App() {
 
   return (
     <div>
-      <Counter count={displayCount} />
-      <Wheel
-        onSpinStart={handleSpinStart}
-        onSpinEnd={handleSpinEnd}
-      />
       <Router>
         <Layout>
       <div style={{ paddingBottom: '60px' }}> {/* reserve space for nav */}
@@ -75,7 +70,7 @@ function App() {
         </Routes>
       </div>
       <Navigation />
-      <Layout />
+      </Layout >
     </Router>
     </div>
     
