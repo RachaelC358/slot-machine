@@ -3,6 +3,8 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { getOrCreateUserId } from '../utils/user';
 import Counter from '../src/components/Counter';
 import Wheel from '../src/components/Wheel';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 
 const MAX_COUNT = 100_000;
 const START_TIME_KEY = 'currencyCounterStartTime';
@@ -60,7 +62,17 @@ function App() {
         onSpinStart={handleSpinStart}
         onSpinEnd={handleSpinEnd}
       />
+      <Router>
+      <div style={{ paddingBottom: '60px' }}> {/* reserve space for nav */}
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/settings" element={<BonusSpin />} />
+        </Routes>
+      </div>
+      <Navigation />
+    </Router>
     </div>
+    
   );
 }
 
