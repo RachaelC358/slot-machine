@@ -4,6 +4,10 @@ import { getOrCreateUserId } from '../utils/user';
 import Counter from '../src/components/Counter';
 import Wheel from '../src/components/Wheel';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from '../src/components/Layout';
+import HomePage from '../src/pages/HomePage';
+import BonusSpin from '../src/pages/BonusSpin';
+import Navigation from '../src/components/Navigation';
 
 
 const MAX_COUNT = 100_000;
@@ -63,6 +67,7 @@ function App() {
         onSpinEnd={handleSpinEnd}
       />
       <Router>
+        <Layout>
       <div style={{ paddingBottom: '60px' }}> {/* reserve space for nav */}
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -70,6 +75,7 @@ function App() {
         </Routes>
       </div>
       <Navigation />
+      <Layout />
     </Router>
     </div>
     
