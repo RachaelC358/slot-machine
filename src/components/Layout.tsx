@@ -1,6 +1,6 @@
 // src/components/Layout.tsx
 import React from 'react';
-import Navigation from '../components/Navigation';
+import Navigation from './Navigation';
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -13,18 +13,29 @@ export default function Layout({ children }: LayoutProps) {
         maxWidth: '500px',
         maxHeight: '800px',
         margin: '0 auto',
-        padding: '16px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
         height: '100vh',
         border: '1px solid #ccc',
         boxSizing: 'border-box',
-        backgroundColor: '#fff'
+        backgroundColor: '#fff',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
-      <div style={{ flexGrow: 1 }}>{children}</div>
-      <Navigation />
+      {/* Scrollable content area */}
+      <div
+        style={{
+          flexGrow: 1,
+          overflowY: 'auto',
+          padding: '16px',
+        }}
+      >
+        {children}
+      </div>
+
+      {/* Sticky nav inside layout */}
+      <div style={{ position: 'sticky', bottom: 0 }}>
+        <Navigation />
+      </div>
     </div>
   );
 }

@@ -1,14 +1,10 @@
 import './App.css';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { getOrCreateUserId } from '../utils/user';
-import Counter from '../src/components/Counter';
-import Wheel from '../src/components/Wheel';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from '../src/components/Layout';
 import HomePage from '../src/pages/HomePage';
 import BonusSpin from '../src/pages/BonusSpin';
-import Navigation from '../src/components/Navigation';
-
 
 const MAX_COUNT = 100_000;
 const START_TIME_KEY = 'currencyCounterStartTime';
@@ -69,7 +65,6 @@ function App() {
           <Route path="/settings" element={<BonusSpin />} />
         </Routes>
       </div>
-      <Navigation />
       </Layout >
     </Router>
     </div>

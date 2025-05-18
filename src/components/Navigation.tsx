@@ -18,6 +18,7 @@ export default function Navigation() {
       <Link to="/" style={{ color: isActive('/') ? 'blue' : 'black' }}>Home</Link>
       <Link to="/settings" style={{ color: isActive('/settings') ? 'blue' : 'black' }}>Settings</Link>
       <Link to="/about" style={{ color: isActive('/about') ? 'blue' : 'black' }}>About</Link>
+      <Link to="/about" style={{ color: isActive('/about') ? 'blue' : 'black' }}>About</Link>s
     </nav>
   );
 }
