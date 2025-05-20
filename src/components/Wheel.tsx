@@ -42,7 +42,7 @@ const SpinWheel: React.FC<WheelProps> = ({ onSpinStart, onSpinEnd }) => {
         onStopSpinning={() => {
           setMustSpin(false);
           spinningRef.current = false;
-          onSpinEnd(); // Resume counter
+          onSpinEnd(); 
         }}
       />
       </div>
