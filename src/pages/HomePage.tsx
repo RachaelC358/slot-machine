@@ -7,10 +7,9 @@ import ColorPicker from 'react-pick-color';
 export default function HomePage() {
   const [displayCount, setDisplayCount] = useState(0);
 
-  // Example of fetching or calculating the count on page load
   useEffect(() => {
-    // Replace this with actual logic to load user currency
-    const initialCount = 100; // mock value
+    
+    const initialCount = 100; 
     setDisplayCount(initialCount);
   }, []);
 
