@@ -41,7 +41,7 @@ var aws_sdk_1 = require("aws-sdk");
 var db = new aws_sdk_1.DynamoDB.DocumentClient();
 var USERS_TABLE = process.env.USERS_TABLE || 'users';
 var handler = function (event) { return __awaiter(void 0, void 0, void 0, function () {
-    var cookie, match, userId, user;
+    var cookie, match, userId, body, color, err_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -49,30 +49,52 @@ var handler = function (event) { return __awaiter(void 0, void 0, void 0, functi
                 match = cookie.match(/user_id=([^;]+)/);
                 userId = match === null || match === void 0 ? void 0 : match[1];
                 if (!userId) {
-                    return [2 /*return*/, { statusCode: 400, body: 'Missing user_id cookie' }];
+                    return [2 /*return*/, {
+                            statusCode: 400,
+                            body: 'Missing user_id cookie',
+                        }];
                 }
-                return [4 /*yield*/, db.get({
+                try {
+                    body = JSON.parse(event.body || '{}');
+                }
+                catch (err) {
+                    return [2 /*return*/, {
+                            statusCode: 400,
+                            body: 'Invalid JSON body',
+                        }];
+                }
+                color = body.color;
+                if (!/^#[0-9A-Fa-f]{6}$/.test(color)) {
+                    return [2 /*return*/, {
+                            statusCode: 400,
+                            body: 'Invalid color format. Must be a hex code like "#ff0033".',
+                        }];
+                }
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                return [4 /*yield*/, db.update({
                         TableName: USERS_TABLE,
                         Key: { user_id: userId },
-                    }).promise()];
-            case 1:
-                user = _a.sent();
-                if (!!user.Item) return [3 /*break*/, 3];
-                return [4 /*yield*/, db.put({
-                        TableName: USERS_TABLE,
-                        Item: {
-                            user_id: userId,
-                            currency: 1000,
-                            created_at: new Date().toISOString(),
+                        UpdateExpression: 'SET color = :color',
+                        ExpressionAttributeValues: {
+                            ':color': color,
                         },
                     }).promise()];
             case 2:
                 _a.sent();
-                _a.label = 3;
-            case 3: return [2 /*return*/, {
-                    statusCode: 200,
-                    body: JSON.stringify({ message: 'User registered or already exists' }),
-                }];
+                return [2 /*return*/, {
+                        statusCode: 200,
+                        body: JSON.stringify({ message: 'Color updated successfully' }),
+                    }];
+            case 3:
+                err_1 = _a.sent();
+                console.error('DynamoDB error:', err_1);
+                return [2 /*return*/, {
+                        statusCode: 500,
+                        body: 'Internal server error',
+                    }];
+            case 4: return [2 /*return*/];
         }
     });
 }); };
