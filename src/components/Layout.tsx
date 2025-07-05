@@ -11,7 +11,6 @@ export default function Layout({ children }: LayoutProps) {
     <div
       style={{
         maxWidth: '500px',
-        maxHeight: '800px',
         margin: '0 auto',
         height: '100vh',
         border: '1px solid #ccc',
@@ -26,7 +25,6 @@ export default function Layout({ children }: LayoutProps) {
         style={{
           flexGrow: 1,
           overflowY: 'auto',
-          padding: '16px',
         }}
       >
         {children}

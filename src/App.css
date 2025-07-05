@@ -1,20 +1,20 @@
 html, body {
   height: 100%;
   margin: 0;
-  overflow: hidden; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
 :root {
   --primary-color: #646cff;
   height: 100%;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
 }
 
 .logo {
   height: 6em;
-  padding: 1.5em;
   will-change: filter;
   transition: filter 300ms;
 }

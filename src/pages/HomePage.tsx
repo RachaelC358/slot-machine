@@ -29,10 +29,12 @@ export default function HomePage() {
   }
 
   return (
-    <div>
+      <div className="container">
+      <div className="content">
       <h1>Home</h1>
       <Counter count={displayCount} />
       <ColorPicker color={color} onChange={(color) => handleColorChange(color.hex)} />
+    </div>
     </div>
   );
 }
