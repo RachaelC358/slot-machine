@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from '../src/components/Layout';
 import HomePage from '../src/pages/HomePage';
 import BonusSpin from '../src/pages/BonusSpin';
+import CoinPage from '../src/pages/CoinPage';
 
 
 
@@ -65,6 +66,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/settings" element={<BonusSpin />} />
+          <Route path="/coins" element={<CoinPage />} />
         </Routes>
       </div>
       </Layout >
