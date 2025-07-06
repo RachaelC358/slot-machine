@@ -61,7 +61,7 @@ function App() {
     <div>
       <Router>
         <Layout>
-      <div style={{ paddingBottom: '60px' }}> {/* reserve space for nav */}
+      <div style={{ paddingBottom: '' }}> {/* reserve space for nav */}
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/settings" element={<BonusSpin />} />
